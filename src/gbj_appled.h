@@ -44,12 +44,16 @@ public:
     PARAMETERS:
     pinLed - Number of GPIO pin of the microcontroller managing an led.
       - Data type: non-negative integer
-      - Default value: none
+      - Default value: LED_BUILTIN (GPIO depends on platform)
       - Limited range: 0 ~ 255
+    reverse - Flag whether the pinLed works in reverse mode, i.e., active low.
+      - Data type: boolean
+      - Default value: true (preferrably for ESP8266, ESP32)
+      - Limited range: true, false
 
     RETURN: object
   */
-  inline gbj_appled(byte pinLed = LED_BUILTIN, bool reverse = false)
+  inline gbj_appled(byte pinLed = LED_BUILTIN, bool reverse = true)
   {
     pin_ = pinLed;
     if (reverse)
@@ -64,6 +68,26 @@ public:
     }
   }
 
+  /*
+    Initialization
+
+    DESCRIPTION:
+    The method should be called in the SETUP section of a sketch and sets up
+    the LED.
+
+    PARAMETERS:
+    initOn - Flag whether the LED should be turned on at start of a sketch.
+      - Data type: boolean
+      - Default value: true
+      - Limited range: true, false
+    enabled - Flag whether the LED is enabled in a sketch. Disabled LED is
+      ignored entirely.
+      - Data type: boolean
+      - Default value: true
+      - Limited range: true, false
+
+    RETURN: Result code.
+  */
   inline void begin(bool initOn = true, bool enabled = true)
   {
     enabled_ = enabled;
