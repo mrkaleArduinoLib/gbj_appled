@@ -76,10 +76,6 @@ public:
     the LED.
 
     PARAMETERS:
-    initOn - Flag whether the LED should be turned on at start of a sketch.
-      - Data type: boolean
-      - Default value: true
-      - Limited range: true, false
     enabled - Flag whether the LED is enabled in a sketch. Disabled LED is
       ignored entirely.
       - Data type: boolean
@@ -88,11 +84,11 @@ public:
 
     RETURN: Result code.
   */
-  inline void begin(bool initOn = true, bool enabled = true)
+  inline void begin(bool enabled = true)
   {
     enabled_ = enabled;
     pinMode(pin_, OUTPUT);
-    initOn ? on() : off();
+    off();
   }
 
   void enable()
@@ -134,10 +130,17 @@ public:
   bool isOff() { return digitalRead(pin_) == OFF; }
   bool isEnabled() { return enabled_; }
   bool isDisabled() { return !isEnabled(); }
+  unsigned int getPeriodNormal() { return Timing::PERIOD_NORMAL;}
+  unsigned int getPeriodFast() { return Timing::PERIOD_FAST;}
 
 private:
-  byte pin_;
+  enum Timing : unsigned int
+  {
+    PERIOD_NORMAL = 500,
+    PERIOD_FAST = 100,
+  };
   byte ON, OFF;
+  byte pin_;
   bool enabled_;
 };
 
