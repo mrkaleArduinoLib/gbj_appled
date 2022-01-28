@@ -1,0 +1,29 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+gbj_appled	KEYWORD2
+begin	KEYWORD2
+enable	KEYWORD2
+disable	KEYWORD2
+on	KEYWORD2
+off	KEYWORD2
+toggle	KEYWORD2
+isEnabled	KEYWORD2
+isDisabled	KEYWORD2
+isOn	KEYWORD2
+isOff	KEYWORD2
+getPeriodNormal	KEYWORD2
+getPeriodFast	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+VERSION	LITERAL1
