@@ -19,7 +19,7 @@ This is an application library, which is used usually as a project library for p
 <a id="internals"></a>
 
 ## Internal parameters
-Internal parameters are hard-coded in the library usually as enumerations and have no setters associated.
+Internal parameters are hard-coded in the library usually as enumerations and have no setters associated. However, they have corresponding getters.
 
 * **Time period for normal blinking** (500 ms): This parameter for 1 blink per second (1 Hz frequency) is suitable for signalling normal operation of a microcontroller. Its getter is [getPeriodNormal()](#period).
 * **Time period for fast blinking** (100 ms): This parameter for 5 blinks per second (5 Hz frequency) is suitable for signalling abnormal, usually erroneous operation of a microcontroller. Its getter is [getPeriodFast()](#period).
@@ -46,8 +46,7 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 <a id="constants"></a>
 
 ## Constants
-
-* **gbj\_appled::VERSION**: Name and semantic version of the library.
+* **VERSION**: Name and semantic version of the library.
 
 
 <a id="interface"></a>
@@ -61,7 +60,7 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * [off()](#switch)
 * [toggle()](#switch)
 
-##### Getters
+### Getters
 * [isOn()](#state)
 * [isOff()](#state)
 * [isEnabled()](#ability)
