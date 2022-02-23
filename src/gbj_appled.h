@@ -32,7 +32,7 @@
 class gbj_appled
 {
 public:
-  static const String VERSION;
+  const String VERSION = "GBJ_APPLED 1.0.0";
 
   /*
     Constructor

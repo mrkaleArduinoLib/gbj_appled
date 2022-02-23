@@ -4,13 +4,12 @@
 This is an application library, which is used usually as a project library for particular PlatformIO project. It encapsulates the functionality of a `signal LED`, which is usually built-in LED of a microcontroller development board. The encapsulation provides following advantages:
 
 * Functionality is hidden from the main sketch.
-* The library follows the principle `separation of concern`.
+* The library follows the principle `separation of concerns`.
 * The library is reusable for various projects without need to code a led management.
 * Update in library is valid for all involved projects.
 
 
 ## Fundamental functionality
-
 * The library controls visibility (on, off) an led always in the same way regardless the led is active high (arduino) or active low (ESP8266, ESP32).
 * It controls ability (enabled, disabled) of the led.
 * It provides time period for normal and fast blinking.
@@ -101,8 +100,8 @@ Object performing led management.
 
 #### Description
 The initialization method of the instance object, which should be called in the setup section of a sketch.
-- The method activates an led pin and sets ability of it.
-- The ability can be change later with corresponding method.
+* The method activates an led pin and sets ability of it.
+* The ability can be change later with corresponding method.
 
 #### Syntax
     void begin(bool enabled)
