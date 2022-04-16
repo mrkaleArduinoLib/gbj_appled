@@ -32,7 +32,7 @@
 class gbj_appled
 {
 public:
-  const String VERSION = "GBJ_APPLED 1.0.0";
+  const String VERSION = "GBJ_APPLED 1.0.1";
 
   /*
     Constructor
@@ -91,17 +91,17 @@ public:
     off();
   }
 
-  void enable()
+  inline void enable()
   {
     enabled_ = true;
     on();
   }
-  void disable()
+  inline void disable()
   {
     enabled_ = false;
     off();
   }
-  void on()
+  inline void on()
   {
     if (isEnabled())
     {
@@ -112,8 +112,8 @@ public:
       off();
     }
   }
-  void off() { digitalWrite(pin_, OFF); }
-  void toggle()
+  inline void off() { digitalWrite(pin_, OFF); }
+  inline void toggle()
   {
     if (isEnabled())
     {
@@ -126,12 +126,12 @@ public:
   }
 
   // Getters
-  bool isOn() { return digitalRead(pin_) == ON; }
-  bool isOff() { return digitalRead(pin_) == OFF; }
-  bool isEnabled() { return enabled_; }
-  bool isDisabled() { return !isEnabled(); }
-  unsigned int getPeriodNormal() { return Timing::PERIOD_NORMAL;}
-  unsigned int getPeriodFast() { return Timing::PERIOD_FAST;}
+  inline bool isOn() { return digitalRead(pin_) == ON; }
+  inline bool isOff() { return digitalRead(pin_) == OFF; }
+  inline bool isEnabled() { return enabled_; }
+  inline bool isDisabled() { return !isEnabled(); }
+  inline unsigned int getPeriodNormal() { return Timing::PERIOD_NORMAL;}
+  inline unsigned int getPeriodFast() { return Timing::PERIOD_FAST;}
 
 private:
   enum Timing : unsigned int
