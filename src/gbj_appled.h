@@ -172,14 +172,14 @@ public:
           if (halted_)
           {
             counter_ = blinks_;
-            reset();
             blinkHurry();
           }
           else
           {
-            halt();
+            digitalWrite(pin_, OFF);
+            halted_ = true;
             timer_->setPeriod(Timing::PERIOD_NORMAL);
-            timer_->reset();
+            timer_->restart();
           }
         }
       }
@@ -211,13 +211,12 @@ private:
   byte pin_, blinks_, counter_;
   bool enabled_, halted_, patterned_;
 
-  inline void halt() { digitalWrite(pin_, OFF), halted_ = true; }
-  inline void reset() { digitalWrite(pin_, ON), halted_ = false; }
   inline void blinkLed(unsigned long period)
   {
     if (isEnabled())
     {
       digitalWrite(pin_, ON);
+      halted_ = false;
       timer_->setPeriod(period);
       timer_->restart();
     }
