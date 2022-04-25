@@ -12,21 +12,24 @@ This is an application library, which is used usually as a project library for p
 ## Fundamental functionality
 * The library controls visibility (on, off) an led always in the same way regardless the led is active high (arduino) or active low (ESP8266, ESP32).
 * It controls ability (enabled, disabled) of the led.
-* It provides time period for normal and fast blinking.
+* It controls blinking (steady, patterned) of the led.
+* The library utilizes internal timer for blinking.
 
 
 <a id="internals"></a>
 
 ## Internal parameters
-Internal parameters are hard-coded in the library usually as enumerations and have no setters associated. However, they have corresponding getters.
+Internal parameters are hard-coded in the library usually as enumerations and have no setters and getters associated.
 
-* **Time period for normal blinking** (500 ms): This parameter for 1 blink per second (1 Hz frequency) is suitable for signalling normal operation of a microcontroller. Its getter is [getPeriodNormal()](#period).
-* **Time period for fast blinking** (100 ms): This parameter for 5 blinks per second (5 Hz frequency) is suitable for signalling abnormal, usually erroneous operation of a microcontroller. Its getter is [getPeriodFast()](#period).
+* **Time period for normal blinking** (`500 ms`): This parameter for 1 blink per second (1 Hz frequency) is suitable for signalling normal operation of a microcontroller.
+* **Time period for hurry blinking** (`200 ms`): This parameter for 5 blinks per 2 second (2.5 Hz frequency) is utilized for patterned blinking and suitable for signalling specific errors by number of blinks in a burst.
+* **Time period for fast blinking** (`100 ms`): This parameter for 5 blinks per second (5 Hz frequency) is suitable for signalling abnormal, usually general erroneous operation of a microcontroller.
 
 
 <a id="dependency"></a>
 
 ## Dependency
+* **gbj\_timer**: Library for executing internal timer within an instance object loaded from the file `gbj_timer.h`.
 
 #### Arduino platform
 * **Arduino.h**: Main include file for the Arduino SDK.
@@ -53,19 +56,24 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 ## Interface
 * [gbj_appled()](#gbj_appled)
 * [begin()](#begin)
+* [run()](#run)
 * [enable()](#allow)
 * [disable()](#allow)
 * [on()](#switch)
 * [off()](#switch)
 * [toggle()](#switch)
+* [blink()](#blink)
+* [blinkHurry()](#blink)
+* [blinkFast()](#blink)
+* [blinkPattern()](#pattern)
 
 ### Getters
-* [isOn()](#state)
-* [isOff()](#state)
 * [isEnabled()](#ability)
 * [isDisabled()](#ability)
-* [getPeriodNormal()](#period)
-* [getPeriodFast()](#period)
+* [isOn()](#state)
+* [isOff()](#state)
+* [isBlinking()](#blinking)
+* [isPatterned()](#blinking)
 
 
 <a id="gbj_appled"></a>
@@ -120,6 +128,21 @@ None
 [Back to interface](#interface)
 
 
+<a id="run"></a>
+
+## run()
+
+#### Description
+The method executes an led blinking and should be called frequently, usually in the loop function of a sketch.
+
+#### See also
+[blink(), blinkHurry(), blinkFast()](#blink)
+
+[blinkPattern()](#pattern)
+
+[Back to interface](#interface)
+
+
 <a id="allow"></a>
 
 ## enable(), disable()
@@ -148,7 +171,7 @@ None
 ## on(), off(), toggle()
 
 #### Description
-The particular method sets corresponding visibility of the led, either switch it on, off, or changes its state.
+The particular method sets corresponding steady visibility of the led if it is enabled, either switch it on, off, or changes its state.
 
 #### Syntax
     void on()
@@ -164,25 +187,50 @@ None
 [Back to interface](#interface)
 
 
-<a id="state"></a>
+<a id="blink"></a>
 
-## isOn(), isOff()
+## blink(), blinkHurry(), blinkFast()
 
 #### Description
-The particular getter returns flag determining whether corresponding visibility of the led is valid.
+The particular method starts corresponding blinking mode of an led if it is enabled, either normal, hurry, or fast blinking.
 
 #### Syntax
-    bool isOn()
-    bool isOff()
+    void blink()
+    void blinkHurry()
+    void blinkFast()
 
 #### Parameters
 None
 
 #### Returns
-Boolean flag about validity of corresponding led's visibility.
+None
 
 #### See also
-[on(), off(), toggle()](#switch)
+[blinkPattern()](#pattern)
+
+[Back to interface](#interface)
+
+
+<a id="pattern"></a>
+
+## blinkPattern()
+
+#### Description
+The method starts patterned blinking mode of an led if it is enabled consisting of periodic bursts of inputed number of hurry blinks followed by a pause with the led turned off valid for normal blinking.
+
+#### Syntax
+    void blinkPattern(byte blinks)
+
+#### Parameters
+* **blinks**: Number of blinks in the bursts of hurry blinking.
+  * *Valid values*: 2 - 255
+  * *Default value*: 3
+
+#### Returns
+None
+
+#### See also
+[blinkHurry()](#blink)
 
 [Back to interface](#interface)
 
@@ -210,42 +258,50 @@ Boolean flag about validity of corresponding led's ability.
 [Back to interface](#interface)
 
 
-<a id="period"></a>
+<a id="state"></a>
 
-## getPeriodNormal(), getPeriodFast()
+## isOn(), isOff()
 
 #### Description
-The particular getter returns period in milliseconds for normal or fast blinking of the led. It is the parameter for a timer controlling the visibility of the led.
+The particular getter returns flag determining whether corresponding steady visibility of the led is valid.
 
 #### Syntax
-    unsigned int getPeriodNormal()
-    unsigned int getPeriodFast()
+    bool isOn()
+    bool isOff()
 
 #### Parameters
 None
 
 #### Returns
-Positive integer time period for related time period controlling the led. In fact, it is a time period for visibility states of the led.
-
-#### Example
-```cpp
-gbj_appled led = gbj_appled(PIN_LED);
-void ledToggle()
-{
-  led.toggle();
-}
-gbj_timer timerLed(led.getPeriodNormal(), ledToggle);
-void setup()
-{
-    led.begin();
-}
-void loop
-{
-    timerLed.run();
-}
-```
+Boolean flag about validity of corresponding led's visibility.
 
 #### See also
-[Internal parameters](#internals)
+[on(), off(), toggle()](#switch)
+
+[Back to interface](#interface)
+
+
+<a id="blinking"></a>
+
+## isBlinking(), isPatterned()
+
+#### Description
+The particular getter returns flag determining whether corresponding steady or patterned blinking of the led is valid.
+* In fact, the getter determines whether the internal timer is active and runs.
+
+#### Syntax
+    bool isBlinking()
+    bool isPatterned()
+
+#### Parameters
+None
+
+#### Returns
+Boolean flag about validity of corresponding led's blinking.
+
+#### See also
+[blink(), blinkHurry(), blinkFast()](#blink)
+
+[blinkPattern()](#pattern)
 
 [Back to interface](#interface)

@@ -134,7 +134,7 @@ public:
   inline void blink() { blinkLed(Timing::PERIOD_NORMAL); }
   inline void blinkHurry() { blinkLed(Timing::PERIOD_HURRY); }
   inline void blinkFast() { blinkLed(Timing::PERIOD_FAST); }
-  inline void blinkPattern(byte blinks = 2)
+  inline void blinkPattern(byte blinks = 3)
   {
     blinks_ = constrain(blinks, 2, 255);
     counter_ = blinks_;
@@ -195,9 +195,8 @@ public:
   inline bool isOff() { return digitalRead(pin_) == OFF; }
   inline bool isEnabled() { return enabled_; }
   inline bool isDisabled() { return !isEnabled(); }
-  inline bool isPatterned() { return patterned_; }
-  inline unsigned int getPeriodNormal() { return Timing::PERIOD_NORMAL; }
-  inline unsigned int getPeriodFast() { return Timing::PERIOD_FAST; }
+  inline bool isBlinking() { return enabled_ && timer_->isActive(); }
+  inline bool isPatterned() { return enabled_ && patterned_; }
 
 private:
   enum Timing : unsigned int
