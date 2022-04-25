@@ -137,9 +137,9 @@ public:
   inline void blinkPattern(byte blinks = 3)
   {
     blinks_ = constrain(blinks, 2, 255);
+    blinkHurry();
     counter_ = blinks_;
     patterned_ = true;
-    blinkHurry();
   }
 
   /*
@@ -171,15 +171,14 @@ public:
         {
           if (halted_)
           {
-            counter_ = blinks_;
-            blinkHurry();
+            blinkPattern(blinks_);
           }
           else
           {
             digitalWrite(pin_, OFF);
-            halted_ = true;
             timer_->setPeriod(Timing::PERIOD_NORMAL);
             timer_->restart();
+            halted_ = true;
           }
         }
       }
@@ -216,6 +215,7 @@ private:
     {
       digitalWrite(pin_, ON);
       halted_ = false;
+      patterned_ = false;
       timer_->setPeriod(period);
       timer_->restart();
     }
