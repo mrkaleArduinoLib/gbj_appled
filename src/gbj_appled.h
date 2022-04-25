@@ -25,6 +25,7 @@
 #elif defined(ESP8266) || defined(ESP32)
   #include <Arduino.h>
 #endif
+#include "gbj_timer.h"
 
 #undef SERIAL_PREFIX
 #define SERIAL_PREFIX "gbj_appled"
@@ -32,7 +33,7 @@
 class gbj_appled
 {
 public:
-  const String VERSION = "GBJ_APPLED 1.0.1";
+  const String VERSION = "GBJ_APPLED 1.1.0";
 
   /*
     Constructor
@@ -66,6 +67,7 @@ public:
       ON = HIGH;
       OFF = LOW;
     }
+    timer_ = new gbj_timer(0);
   }
 
   /*
@@ -86,15 +88,15 @@ public:
   */
   inline void begin(bool enabled = true)
   {
-    enabled_ = enabled;
     pinMode(pin_, OUTPUT);
+    enabled_ = true;
     off();
   }
 
   inline void enable()
   {
     enabled_ = true;
-    on();
+    timer_->restart();
   }
   inline void disable()
   {
@@ -105,6 +107,7 @@ public:
   {
     if (isEnabled())
     {
+      timer_->halt();
       digitalWrite(pin_, ON);
     }
     else
@@ -112,7 +115,11 @@ public:
       off();
     }
   }
-  inline void off() { digitalWrite(pin_, OFF); }
+  inline void off()
+  {
+    timer_->halt();
+    digitalWrite(pin_, OFF);
+  }
   inline void toggle()
   {
     if (isEnabled())
@@ -124,24 +131,101 @@ public:
       off();
     }
   }
+  inline void blink() { blinkLed(Timing::PERIOD_NORMAL); }
+  inline void blinkHurry() { blinkLed(Timing::PERIOD_HURRY); }
+  inline void blinkFast() { blinkLed(Timing::PERIOD_FAST); }
+  inline void blinkPattern(byte blinks = 2)
+  {
+    blinks_ = constrain(blinks, 2, 255);
+    counter_ = blinks_;
+    patterned_ = true;
+    blinkHurry();
+  }
+
+  /*
+    Processing.
+
+    DESCRIPTION:
+    The method should be called in an application sketch loop.
+    It processes main functionality and is controlled by the internal timer.
+
+    PARAMETERS: None
+
+    RETURN: none
+  */
+  inline void run()
+  {
+    if (timer_->run())
+    {
+      if (isPatterned())
+      {
+        if (counter_)
+        {
+          if (isOn())
+          {
+            counter_--;
+          }
+          toggle();
+        }
+        else
+        {
+          if (halted_)
+          {
+            counter_ = blinks_;
+            reset();
+            blinkHurry();
+          }
+          else
+          {
+            halt();
+            timer_->setPeriod(Timing::PERIOD_NORMAL);
+            timer_->reset();
+          }
+        }
+      }
+      else
+      {
+        toggle();
+      }
+    }
+  }
 
   // Getters
   inline bool isOn() { return digitalRead(pin_) == ON; }
   inline bool isOff() { return digitalRead(pin_) == OFF; }
   inline bool isEnabled() { return enabled_; }
   inline bool isDisabled() { return !isEnabled(); }
-  inline unsigned int getPeriodNormal() { return Timing::PERIOD_NORMAL;}
-  inline unsigned int getPeriodFast() { return Timing::PERIOD_FAST;}
+  inline bool isPatterned() { return patterned_; }
+  inline unsigned int getPeriodNormal() { return Timing::PERIOD_NORMAL; }
+  inline unsigned int getPeriodFast() { return Timing::PERIOD_FAST; }
 
 private:
   enum Timing : unsigned int
   {
     PERIOD_NORMAL = 500,
+    PERIOD_HURRY = 200,
     PERIOD_FAST = 100,
   };
+  gbj_timer *timer_;
   byte ON, OFF;
-  byte pin_;
-  bool enabled_;
+  byte pin_, blinks_, counter_;
+  bool enabled_, halted_, patterned_;
+
+  inline void halt() { digitalWrite(pin_, OFF), halted_ = true; }
+  inline void reset() { digitalWrite(pin_, ON), halted_ = false; }
+  inline void blinkLed(unsigned long period)
+  {
+    if (isEnabled())
+    {
+      digitalWrite(pin_, ON);
+      timer_->setPeriod(period);
+      timer_->restart();
+    }
+    else
+    {
+      off();
+    }
+  }
 };
 
 #endif
