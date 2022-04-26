@@ -174,9 +174,10 @@ public:
   inline void blinkPattern(byte blinks = 3)
   {
     blinks_ = constrain(blinks, 2, 255);
-    blinkHurry();
-    mode_ = Modus::MODE_PATTERN;
-    counter_ = blinks_;
+    if (!isPatterned())
+    {
+      blinkPatternRestart();
+    }
   }
 
   /*
@@ -195,7 +196,7 @@ public:
     // Never runs at disabled led
     if (timer_->run())
     {
-      if (mode_ == Modus::MODE_PATTERN)
+      if (isPatterned())
       {
         if (counter_)
         {
@@ -209,7 +210,7 @@ public:
         {
           if (halted_)
           {
-            blinkPattern(blinks_);
+            blinkPatternRestart();
           }
           else
           {
@@ -264,14 +265,20 @@ private:
     if (isEnabled())
     {
       digitalWrite(pin_, ON);
-      halted_ = false;
       timer_->setPeriod(period);
       timer_->restart();
+      halted_ = false;
     }
     else
     {
       off();
     }
+  }
+  inline void blinkPatternRestart()
+  {
+    blinkHurry();
+    mode_ = Modus::MODE_PATTERN;
+    counter_ = blinks_;
   }
 };
 
