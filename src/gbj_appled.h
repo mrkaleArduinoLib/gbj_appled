@@ -89,14 +89,38 @@ public:
   inline void begin(bool enabled = true)
   {
     pinMode(pin_, OUTPUT);
-    enabled_ = true;
-    off();
+    enabled ? enable() : disable();
   }
 
   inline void enable()
   {
     enabled_ = true;
-    timer_->restart();
+    switch (mode_)
+    {
+      case Modus::MODE_ON:
+        on();
+        break;
+
+      case Modus::MODE_BLINK:
+        blink();
+        break;
+
+      case Modus::MODE_HURRY:
+        blinkHurry();
+        break;
+
+      case Modus::MODE_FAST:
+        blinkFast();
+        break;
+
+      case Modus::MODE_PATTERN:
+        blinkPattern(blinks_);
+        break;
+
+      default:
+        off();
+        break;
+    }
   }
   inline void disable()
   {
@@ -109,6 +133,7 @@ public:
     {
       timer_->halt();
       digitalWrite(pin_, ON);
+      mode_ = Modus::MODE_ON;
     }
     else
     {
@@ -131,15 +156,27 @@ public:
       off();
     }
   }
-  inline void blink() { blinkLed(Timing::PERIOD_NORMAL); }
-  inline void blinkHurry() { blinkLed(Timing::PERIOD_HURRY); }
-  inline void blinkFast() { blinkLed(Timing::PERIOD_FAST); }
+  inline void blink()
+  {
+    blinkLed(Timing::PERIOD_NORMAL);
+    mode_ = Modus::MODE_BLINK;
+  }
+  inline void blinkHurry()
+  {
+    blinkLed(Timing::PERIOD_HURRY);
+    mode_ = Modus::MODE_HURRY;
+  }
+  inline void blinkFast()
+  {
+    blinkLed(Timing::PERIOD_FAST);
+    mode_ = Modus::MODE_FAST;
+  }
   inline void blinkPattern(byte blinks = 3)
   {
     blinks_ = constrain(blinks, 2, 255);
     blinkHurry();
+    mode_ = Modus::MODE_PATTERN;
     counter_ = blinks_;
-    patterned_ = true;
   }
 
   /*
@@ -155,13 +192,14 @@ public:
   */
   inline void run()
   {
+    // Never runs at disabled led
     if (timer_->run())
     {
-      if (isPatterned())
+      if (mode_ == Modus::MODE_PATTERN)
       {
         if (counter_)
         {
-          if (isOn())
+          if (isLit())
           {
             counter_--;
           }
@@ -190,12 +228,14 @@ public:
   }
 
   // Getters
-  inline bool isOn() { return digitalRead(pin_) == ON; }
-  inline bool isOff() { return digitalRead(pin_) == OFF; }
+  inline bool isLit() { return digitalRead(pin_) == ON; }
+  inline bool isDim() { return digitalRead(pin_) == OFF; }
   inline bool isEnabled() { return enabled_; }
   inline bool isDisabled() { return !isEnabled(); }
+  inline bool isOff() { return isDim() && !isBlinking(); }
+  inline bool isOn() { return enabled_ && mode_ == Modus::MODE_ON; }
   inline bool isBlinking() { return enabled_ && timer_->isActive(); }
-  inline bool isPatterned() { return enabled_ && patterned_; }
+  inline bool isPatterned() { return enabled_ && mode_ == Modus::MODE_PATTERN; }
 
 private:
   enum Timing : unsigned int
@@ -204,10 +244,20 @@ private:
     PERIOD_HURRY = 200,
     PERIOD_FAST = 100,
   };
+  enum Modus
+  {
+    MODE_OFF,
+    MODE_ON,
+    MODE_BLINK,
+    MODE_HURRY,
+    MODE_FAST,
+    MODE_PATTERN,
+  };
   gbj_timer *timer_;
+  Modus mode_;
   byte ON, OFF;
   byte pin_, blinks_, counter_;
-  bool enabled_, halted_, patterned_;
+  bool enabled_, halted_;
 
   inline void blinkLed(unsigned long period)
   {
@@ -215,7 +265,6 @@ private:
     {
       digitalWrite(pin_, ON);
       halted_ = false;
-      patterned_ = false;
       timer_->setPeriod(period);
       timer_->restart();
     }

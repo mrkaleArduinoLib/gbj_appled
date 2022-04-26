@@ -68,10 +68,12 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * [blinkPattern()](#pattern)
 
 ### Getters
+* [isLit()](#state)
+* [isDim()](#state)
 * [isEnabled()](#ability)
 * [isDisabled()](#ability)
-* [isOn()](#state)
-* [isOff()](#state)
+* [isOn()](#visibility)
+* [isOff()](#visibility)
 * [isBlinking()](#blinking)
 * [isPatterned()](#blinking)
 
@@ -260,10 +262,30 @@ Boolean flag about validity of corresponding led's ability.
 
 <a id="state"></a>
 
+## isLit(), isDim()
+
+#### Description
+The particular getter returns flag determining whether corresponding led is valid, i.e., the led lights or is dimmed.
+
+#### Syntax
+    bool isLit()
+    bool isDim()
+
+#### Parameters
+None
+
+#### Returns
+Boolean flag about validity of corresponding led's state.
+
+[Back to interface](#interface)
+
+
+<a id="visibility"></a>
+
 ## isOn(), isOff()
 
 #### Description
-The particular getter returns flag determining whether corresponding steady visibility of the led is valid.
+The particular getter returns flag determining whether corresponding steady visibility mode of the led is valid.
 
 #### Syntax
     bool isOn()
@@ -273,7 +295,7 @@ The particular getter returns flag determining whether corresponding steady visi
 None
 
 #### Returns
-Boolean flag about validity of corresponding led's visibility.
+Boolean flag about validity of corresponding led's steady visibility.
 
 #### See also
 [on(), off(), toggle()](#switch)
@@ -286,7 +308,7 @@ Boolean flag about validity of corresponding led's visibility.
 ## isBlinking(), isPatterned()
 
 #### Description
-The particular getter returns flag determining whether corresponding steady or patterned blinking of the led is valid.
+The particular getter returns flag determining whether corresponding steady or patterned blinking mode of the led is valid.
 * In fact, the getter determines whether the internal timer is active and runs.
 
 #### Syntax
