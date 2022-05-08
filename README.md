@@ -218,7 +218,7 @@ None
 ## blinkPattern()
 
 #### Description
-The method starts patterned blinking mode of an led if it is enabled consisting of periodic bursts of inputed number of hurry blinks followed by a pause with the led turned off valid for normal blinking.
+The method starts patterned blinking mode of an led if it is enabled consisting of periodic bursts of input number of hurry blinks followed by a pause with the led turned off valid for normal blinking.
 
 #### Syntax
     void blinkPattern(byte blinks)
