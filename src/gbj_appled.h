@@ -84,7 +84,7 @@ public:
       - Default value: true
       - Limited range: true, false
 
-    RETURN: Result code.
+    RETURN: None
   */
   inline void begin(bool enabled = true)
   {
