@@ -11,6 +11,7 @@ This is an application library, which is used usually as a project library for p
 
 ## Fundamental functionality
 * The library controls visibility (on, off) an led always in the same way regardless the led is active high (arduino) or active low (ESP8266, ESP32).
+* It controls accessibility of an led's GPIO, i.e., can totally the avoid manipulation with the corresponding pin. It is neccessary for microcontroller, where builtin led is connected to serial TX pin, so that using the led and serial monitor at once is not possible.
 * It controls ability (enabled, disabled) of the led.
 * It controls blinking (steady, patterned) of the led.
 * The library utilizes internal timer for blinking.
@@ -57,6 +58,8 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * [gbj_appled()](#gbj_appled)
 * [begin()](#begin)
 * [run()](#run)
+* [block()](#ignore)
+* [free()](#ignore)
 * [enable()](#allow)
 * [disable()](#allow)
 * [on()](#switch)
@@ -68,10 +71,12 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * [blinkPattern()](#pattern)
 
 ### Getters
-* [isLit()](#state)
-* [isDim()](#state)
+* [isBlocked()](#access)
+* [isFree()](#access)
 * [isEnabled()](#ability)
 * [isDisabled()](#ability)
+* [isLit()](#state)
+* [isDim()](#state)
 * [isOn()](#visibility)
 * [isOff()](#visibility)
 * [isBlinking()](#blinking)
@@ -86,7 +91,7 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 Constructor creates the class instance object and initiates state of the led, especially values for turned on or off state depending on reversebility of the led.
 
 #### Syntax
-    gbj_appled(byte pinLed, bool reverse)
+    gbj_appled(byte pinLed, bool reverse, bool block)
 
 #### Parameters
 * **pinLed**: Number of a GPIO pin, where the signalling led is connected. Usually it is a built-in led or an auxilliary led (NodeMCU).
@@ -97,6 +102,11 @@ Constructor creates the class instance object and initiates state of the led, es
 * **reverse**: Flag determining reversibility of the led, i.e., whether the led works in reverse mode (active low) or in direct mode (active high).
   * *Valid values*: true or false
   * *Default value*: true (for ESP8266, ESP)
+
+
+* **block**: Flag whether the GPIO pin for led is not controlled alltogether. It is suitable at ESP8266-01, where builtin led is connected to serial TX pin, so that the using led and serial monitor at once is not possible.
+  * *Valid values*: true or false
+  * *Default value*: false (for ESP8266, ESP)
 
 #### Returns
 Object performing led management.
@@ -141,6 +151,30 @@ The method executes an led blinking and should be called frequently, usually in 
 [blink(), blinkHurry(), blinkFast()](#blink)
 
 [blinkPattern()](#pattern)
+
+[Back to interface](#interface)
+
+
+<a id="ignore"></a>
+
+## block(), free()
+
+#### Description
+The methods manipulate accessibility of the led's GPIO pin, either blocks or frees it.
+- After changing the accessibility of a led's GPIO pin during the firmware run, its mode should be set exactly in a sketch accordingly to the new usage of it.
+
+#### Syntax
+    void block()
+    void free()
+
+#### Parameters
+None
+
+#### Returns
+None
+
+#### See also
+[begin()](#begin)
 
 [Back to interface](#interface)
 
@@ -237,6 +271,29 @@ None
 [Back to interface](#interface)
 
 
+<a id="access"></a>
+
+## isBlocked(), isFree()
+
+#### Description
+The particular getter returns flag determining whether corresponding accessibility of the led is valid.
+
+#### Syntax
+    bool isBlocked()
+    bool isFree()
+
+#### Parameters
+None
+
+#### Returns
+Boolean flag about validity of corresponding led's accessibility.
+
+#### See also
+[block(), free()](#ignore)
+
+[Back to interface](#interface)
+
+
 <a id="ability"></a>
 
 ## isEnabled(), isDisabled()
@@ -276,6 +333,7 @@ None
 
 #### Returns
 Boolean flag about validity of corresponding led's state.
+If the led is blocked, the method always returs false flag.
 
 [Back to interface](#interface)
 
@@ -296,6 +354,7 @@ None
 
 #### Returns
 Boolean flag about validity of corresponding led's steady visibility.
+If the led is blocked, the method always returs false flag.
 
 #### See also
 [on(), off(), toggle()](#switch)
@@ -320,6 +379,7 @@ None
 
 #### Returns
 Boolean flag about validity of corresponding led's blinking.
+If the led is blocked, the method always returs false flag.
 
 #### See also
 [blink(), blinkHurry(), blinkFast()](#blink)

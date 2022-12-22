@@ -33,7 +33,7 @@
 class gbj_appled
 {
 public:
-  const String VERSION = "GBJ_APPLED 1.1.0";
+  const String VERSION = "GBJ_APPLED 1.2.0";
 
   /*
     Constructor
@@ -47,16 +47,25 @@ public:
       - Data type: non-negative integer
       - Default value: LED_BUILTIN (GPIO depends on platform)
       - Limited range: 0 ~ 255
-    reverse - Flag whether the pinLed works in reverse mode, i.e., active low.
+    reverse - Flag whether the led works in reverse mode, i.e., active low.
+      - Data type: boolean
+      - Default value: true (preferrably for ESP8266, ESP32)
+      - Limited range: true, false
+    block - Flag whether the GPIO pin for led is not controlled alltogether. It
+    is suitable at ESP8266-01, where builtin led is connected to serial TX pin,
+    so that the using led and serial monitor at once is not possible.
       - Data type: boolean
       - Default value: true (preferrably for ESP8266, ESP32)
       - Limited range: true, false
 
     RETURN: object
   */
-  inline gbj_appled(byte pinLed = LED_BUILTIN, bool reverse = true)
+  inline gbj_appled(byte pinLed = LED_BUILTIN,
+                    bool reverse = true,
+                    bool block = false)
   {
     pin_ = pinLed;
+    blocked_ = block;
     if (reverse)
     {
       ON = LOW;
@@ -88,10 +97,15 @@ public:
   */
   inline void begin(bool enabled = true)
   {
-    pinMode(pin_, OUTPUT);
+    if (isFree())
+    {
+      pinMode(pin_, OUTPUT);
+    }
     enabled ? enable() : disable();
   }
 
+  inline void block() { blocked_ = true; }
+  inline void free() { blocked_ = false; }
   inline void enable()
   {
     enabled_ = true;
@@ -131,8 +145,11 @@ public:
   {
     if (isEnabled())
     {
-      timer_->halt();
-      digitalWrite(pin_, ON);
+      if (isFree())
+      {
+        timer_->halt();
+        digitalWrite(pin_, ON);
+      }
       mode_ = Modus::MODE_ON;
     }
     else
@@ -142,14 +159,20 @@ public:
   }
   inline void off()
   {
-    timer_->halt();
-    digitalWrite(pin_, OFF);
+    if (isFree())
+    {
+      timer_->halt();
+      digitalWrite(pin_, OFF);
+    }
   }
   inline void toggle()
   {
     if (isEnabled())
     {
-      digitalWrite(pin_, digitalRead(pin_) ^ 1);
+      if (isFree())
+      {
+        digitalWrite(pin_, digitalRead(pin_) ^ 1);
+      }
     }
     else
     {
@@ -193,7 +216,10 @@ public:
   */
   inline void run()
   {
-    // Never runs at disabled led
+    if (isBlocked())
+    {
+      return;
+    }
     if (timer_->run())
     {
       if (isPatterned())
@@ -229,14 +255,25 @@ public:
   }
 
   // Getters
-  inline bool isLit() { return digitalRead(pin_) == ON; }
-  inline bool isDim() { return digitalRead(pin_) == OFF; }
+  inline bool isBlocked() { return blocked_; }
+  inline bool isFree() { return !isBlocked(); }
   inline bool isEnabled() { return enabled_; }
   inline bool isDisabled() { return !isEnabled(); }
+  inline bool isLit() { return isBlocked() ? false : digitalRead(pin_) == ON; }
+  inline bool isDim() { return isBlocked() ? false : digitalRead(pin_) == OFF; }
   inline bool isOff() { return isDim() && !isBlinking(); }
-  inline bool isOn() { return enabled_ && mode_ == Modus::MODE_ON; }
-  inline bool isBlinking() { return enabled_ && timer_->isActive(); }
-  inline bool isPatterned() { return enabled_ && mode_ == Modus::MODE_PATTERN; }
+  inline bool isOn()
+  {
+    return isBlocked() ? false : isEnabled() && mode_ == Modus::MODE_ON;
+  }
+  inline bool isBlinking()
+  {
+    return isBlocked() ? false : isEnabled() && timer_->isActive();
+  }
+  inline bool isPatterned()
+  {
+    return isBlocked() ? false : isEnabled() && mode_ == Modus::MODE_PATTERN;
+  }
 
 private:
   enum Timing : unsigned int
@@ -258,7 +295,7 @@ private:
   Modus mode_;
   byte ON, OFF;
   byte pin_, blinks_, counter_;
-  bool enabled_, halted_;
+  bool blocked_, enabled_, halted_;
 
   inline void blinkLed(unsigned long period)
   {
