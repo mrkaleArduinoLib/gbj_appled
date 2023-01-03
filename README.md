@@ -11,7 +11,8 @@ This is an application library, which is used usually as a project library for p
 
 ## Fundamental functionality
 * The library controls visibility (on, off) an led always in the same way regardless the led is active high (arduino) or active low (ESP8266, ESP32).
-* It controls accessibility of an led's GPIO, i.e., can totally the avoid manipulation with the corresponding pin. It is neccessary for microcontroller, where builtin led is connected to serial TX pin, so that using the led and serial monitor at once is not possible.
+* It controls accessibility of an led's GPIO, i.e., can totally avoid manipulation with the corresponding pin. It is neccessary for microcontroller, where builtin led is connected to serial TX pin, so that using the led and serial monitor at once is not possible.
+* It controls accessibility (blocked, free) of the led.
 * It controls ability (enabled, disabled) of the led.
 * It controls blinking (steady, patterned) of the led.
 * The library utilizes internal timer for blinking.
@@ -99,14 +100,14 @@ Constructor creates the class instance object and initiates state of the led, es
   * *Default value*: LED_BUILTIN (depends on platform)
 
 
-* **reverse**: Flag determining reversibility of the led, i.e., whether the led works in reverse mode (active low) or in direct mode (active high).
+* **reverse**: Flag determining polarity of the led, i.e., whether the led works in reverse mode (active low) or in direct mode (active high).
   * *Valid values*: true or false
-  * *Default value*: true (for ESP8266, ESP)
+  * *Default value*: true (preferrably for ESP8266, ESP)
 
 
 * **block**: Flag whether the GPIO pin for led is not controlled alltogether. It is suitable at ESP8266-01, where builtin led is connected to serial TX pin, so that the using led and serial monitor at once is not possible.
   * *Valid values*: true or false
-  * *Default value*: false (for ESP8266, ESP)
+  * *Default value*: false
 
 #### Returns
 Object performing led management.
@@ -147,6 +148,15 @@ None
 #### Description
 The method executes an led blinking and should be called frequently, usually in the loop function of a sketch.
 
+#### Syntax
+    void run()
+
+#### Parameters
+None
+
+#### Returns
+None
+
 #### See also
 [blink(), blinkHurry(), blinkFast()](#blink)
 
@@ -161,7 +171,7 @@ The method executes an led blinking and should be called frequently, usually in 
 
 #### Description
 The methods manipulate accessibility of the led's GPIO pin, either blocks or frees it.
-- After changing the accessibility of a led's GPIO pin during the firmware run, its mode should be set exactly in a sketch accordingly to the new usage of it.
+* After changing the accessibility of a led's GPIO pin during the firmware run, its mode should be set exactly in a sketch accordingly to the new usage of it.
 
 #### Syntax
     void block()
@@ -174,7 +184,7 @@ None
 None
 
 #### See also
-[begin()](#begin)
+[isBlocked(), isFree()](#access)
 
 [Back to interface](#interface)
 
@@ -197,6 +207,8 @@ None
 None
 
 #### See also
+[isEnabled(), isDisabled()](#ability)
+
 [begin()](#begin)
 
 [Back to interface](#interface)

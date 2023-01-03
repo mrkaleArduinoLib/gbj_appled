@@ -4,7 +4,7 @@
 
   DESCRIPTION:
   Library manages an LED, usually BUILT-IN led for signalling purposes.
-  - Library accepts different wiring of built-in led on various platforms.
+  - Library accepts different wiring of a built-in led on various platforms.
 
   LICENSE:
   This program is free software; you can redistribute it and/or modify
@@ -55,7 +55,7 @@ public:
     is suitable at ESP8266-01, where builtin led is connected to serial TX pin,
     so that the using led and serial monitor at once is not possible.
       - Data type: boolean
-      - Default value: true (preferrably for ESP8266, ESP32)
+      - Default value: false
       - Limited range: true, false
 
     RETURN: object
