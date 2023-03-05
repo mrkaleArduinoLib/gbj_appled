@@ -33,7 +33,7 @@
 class gbj_appled
 {
 public:
-  const String VERSION = "GBJ_APPLED 1.2.0";
+  const String VERSION = "GBJ_APPLED 1.3.0";
 
   /*
     Constructor
@@ -102,6 +102,7 @@ public:
       pinMode(pin_, OUTPUT);
     }
     enabled ? enable() : disable();
+    on();
   }
 
   inline void block() { blocked_ = true; }

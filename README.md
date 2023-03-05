@@ -121,7 +121,7 @@ Object performing led management.
 
 #### Description
 The initialization method of the instance object, which should be called in the setup section of a sketch.
-* The method activates an led pin and sets ability of it.
+* The method activates an led pin, sets ability of it, and turns it on, if it is enabled.
 * The ability can be change later with corresponding method.
 
 #### Syntax
