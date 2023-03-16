@@ -47,12 +47,6 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * **Particle.h**: Includes alternative (C++) data type definitions.
 
 
-<a id="constants"></a>
-
-## Constants
-* **VERSION**: Name and semantic version of the library.
-
-
 <a id="interface"></a>
 
 ## Interface
