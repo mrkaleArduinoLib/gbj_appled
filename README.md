@@ -77,6 +77,9 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * [isBlinking()](#blinking)
 * [isPatterned()](#blinking)
 
+### Setters
+* [setAbility()](#setAbility)
+
 
 <a id="gbj_appled"></a>
 
@@ -122,7 +125,7 @@ The initialization method of the instance object, which should be called in the 
     void begin(bool enabled)
 
 #### Parameters
-* **enabled**: Flag defining the ability of an LED. If disabled, the led is ignored entirely and never lits.
+* **enabled**: Flag defining the ability of an LED. If disabled, the led is ignored entirely and never lits. At running it can be changed by the setter [setAbility()](#setAbility).
   * *Valid values*: true or false
   * *Default value*: true
 
@@ -131,6 +134,8 @@ None
 
 #### See also
 [enable(), disable()](#allow)
+
+[setAbility()](#setAbility)
 
 [Back to interface](#interface)
 
@@ -196,6 +201,34 @@ The methods manipulate ability of the led, either enables or disable it.
 
 #### Parameters
 None
+
+#### Returns
+None
+
+#### See also
+[isEnabled(), isDisabled()](#ability)
+
+[setAbility()](#setAbility)
+
+[begin()](#begin)
+
+[Back to interface](#interface)
+
+
+<a id="setAbility"></a>
+
+## setAbility()
+
+#### Description
+The methods sets ability of the led by the value of input argument. It is setter for the input argument of the method [begin](#begin).
+
+#### Syntax
+    void setAbility(bool enabled)
+
+#### Parameters
+* **enabled**: Flag defining the ability of an LED. If disabled, the led is ignored entirely and never lits.
+  * *Valid values*: true or false
+  * *Default value*: none
 
 #### Returns
 None

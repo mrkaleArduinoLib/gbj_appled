@@ -274,6 +274,9 @@ public:
     return isBlocked() ? false : isEnabled() && mode_ == Modus::MODE_PATTERN;
   }
 
+  // Setters
+  inline void setAbility(bool enabled) { enabled ? enable() : disable(); }
+
 private:
   enum Timing : unsigned int
   {
