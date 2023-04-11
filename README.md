@@ -220,7 +220,7 @@ None
 ## setAbility()
 
 #### Description
-The methods sets ability of the led by the value of input argument. It is setter for the input argument of the method [begin](#begin).
+The method sets ability of the led by the value of input argument. It is a setter for the input argument of the method [begin](#begin).
 
 #### Syntax
     void setAbility(bool enabled)
