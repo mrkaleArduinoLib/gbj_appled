@@ -1,5 +1,3 @@
-<a id="library"></a>
-
 # gbj\_appled
 This is an application library, which is used usually as a project library for particular PlatformIO project. It encapsulates the functionality of a `signal LED`, which is usually built-in LED of a microcontroller development board. The encapsulation provides following advantages:
 
