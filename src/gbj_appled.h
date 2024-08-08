@@ -273,6 +273,12 @@ public:
   {
     return isBlocked() ? false : isEnabled() && mode_ == Modus::MODE_PATTERN;
   }
+  inline String getStatusOn() { return "ON"; }
+  inline String getStatusOff() { return "OFF"; }
+  inline String getStatus()
+  {
+    return isEnabled() ? getStatusOn() : getStatusOff();
+  }
 
   // Setters
   inline void setAbility(bool enabled) { enabled ? enable() : disable(); }
