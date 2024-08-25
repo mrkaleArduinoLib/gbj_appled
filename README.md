@@ -8,7 +8,7 @@ This is an application library, which is used usually as a project library for p
 
 
 ## Fundamental functionality
-* The library controls visibility (on, off) an led always in the same way regardless the led is active high (arduino) or active low (ESP8266, ESP32).
+* The library controls visibility (on, off) an led always in the same way regardless the led is active high (arduino, ESP32) or active low (ESP8266).
 * It controls accessibility of an led's GPIO, i.e., can totally avoid manipulation with the corresponding pin. It is neccessary for microcontroller, where builtin led is connected to serial TX pin, so that using the led and serial monitor at once is not possible.
 * It controls accessibility (blocked, free) of the led.
 * It controls ability (enabled, disabled) of the led.
@@ -40,9 +40,6 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 
 #### Espressif ESP32 platform
 * **Arduino.h**: Main include file for the Arduino platform.
-
-#### Particle platform
-* **Particle.h**: Includes alternative (C++) data type definitions.
 
 
 <a id="interface"></a>
@@ -77,6 +74,9 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * [getStatusOn()](#getStatusFlags)
 * [getStatusOff()](#getStatusFlags)
 * [getStatus()](#getStatus)
+* [getMode()](#getModus)
+* [getModeText()](#getModus)
+* [getBlinks()](#getBlinks)
 
 ### Setters
 * [setAbility()](#setAbility)
@@ -473,5 +473,51 @@ Textual flag representing current led state.
 
 #### See also
 [getStatusOn(), getStatusOff()](#getStatusFlags)
+
+[Back to interface](#interface)
+
+
+<a id="getModus"></a>
+
+## getMode(), getModeText()
+
+#### Description
+The getter returns either numerical or textual representation of the current led's modus, i.e., its current visual function.
+
+#### Syntax
+    byte getMode()
+    String getModeText()
+
+#### Parameters
+None
+
+#### Returns
+Numerical or textual representation of current led modus.
+
+#### See also
+[getBlinks()](#getBlinks)
+
+[Back to interface](#interface)
+
+
+<a id="getBlinks"></a>
+
+## getBlinks()
+
+#### Description
+The getter returns number of blinks utilized at pattern blinking led modus.
+* The getter is usefull only in pattern blinking mode, even if returns the blinks number in either case.
+
+#### Syntax
+    byte getBlinks()
+
+#### Parameters
+None
+
+#### Returns
+Number of blinks used at pattern blinking modus.
+
+#### See also
+[getMode(), getModeText()](#getModus)
 
 [Back to interface](#interface)
