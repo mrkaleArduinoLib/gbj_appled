@@ -311,6 +311,25 @@ None
 [Back to interface](#interface)
 
 
+<a id="restoreMode"></a>
+
+## restoreMode()
+
+#### Description
+The method restores the previous led modus or number of blinks in case of patterned blinking.
+* It is useful at temporary changing led mode, e.g., to "on" at long lasting blocking operations and then to return to previous (original) mode.
+
+#### Syntax
+    void restoreMode()
+
+#### Parameters
+None
+
+#### Returns
+None
+
+[Back to interface](#interface)
+
 <a id="access"></a>
 
 ## isBlocked(), isFree()

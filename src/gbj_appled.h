@@ -50,7 +50,7 @@ public:
       - Default value: true (preferrably for ESP8266, ESP32)
       - Limited range: true, false
     block - Flag whether the GPIO pin for led is not controlled alltogether. It
-    is suitable at ESP8266-01, where builtin led is connected to serial TX pin,
+    is suitable at ESP8266-01, where built-in led is connected to serial TX pin,
     so that the using led and serial monitor at once is not possible.
       - Data type: boolean
       - Default value: false
@@ -108,32 +108,7 @@ public:
   inline void enable()
   {
     status_.enabled_ = true;
-    switch (status_.mode_)
-    {
-      case Modus::MODE_ON:
-        on();
-        break;
-
-      case Modus::MODE_BLINK:
-        blink();
-        break;
-
-      case Modus::MODE_HURRY:
-        blinkHurry();
-        break;
-
-      case Modus::MODE_FAST:
-        blinkFast();
-        break;
-
-      case Modus::MODE_PATTERN:
-        blinkPattern(status_.blinks_);
-        break;
-
-      default:
-        off();
-        break;
-    }
+    execMode();
   }
   inline void disable()
   {
@@ -163,6 +138,7 @@ public:
       timer_->halt();
       digitalWrite(status_.pin_, OFF);
     }
+    status_.mode_ = Modus::MODE_OFF;
   }
   inline void toggle()
   {
@@ -181,24 +157,38 @@ public:
   inline void blink()
   {
     blinkLed(Timing::PERIOD_NORMAL);
-    status_.mode_ = Modus::MODE_BLINK;
+    setMode(Modus::MODE_BLINK);
   }
   inline void blinkHurry()
   {
     blinkLed(Timing::PERIOD_HURRY);
-    status_.mode_ = Modus::MODE_HURRY;
+    setMode(Modus::MODE_HURRY);
   }
   inline void blinkFast()
   {
     blinkLed(Timing::PERIOD_FAST);
-    status_.mode_ = Modus::MODE_FAST;
+    setMode(Modus::MODE_FAST);
   }
   inline void blinkPattern(byte blinks = 3)
   {
-    status_.blinks_ = constrain(blinks, 2, 255);
+    setBlinks(constrain(blinks, 2, 255));
     if (!isPatterned())
     {
       blinkPatternRestart();
+    }
+  }
+  inline void restoreMode()
+  {
+    if (isEnabled() && isFree())
+    {
+      setMode(status_.modeOld_);
+      if (getMode() == Modus::MODE_PATTERN)
+      {
+        byte blinks = status_.blinks_;
+        status_.blinks_ = status_.blinksOld_;
+        status_.blinksOld_ = blinks;
+      }
+      execMode();
     }
   }
 
@@ -345,11 +335,13 @@ private:
   {
     byte pin_;
     byte blinks_;
+    byte blinksOld_;
     byte counter_;
     bool blocked_;
     bool enabled_;
     bool halted_;
-    Modus mode_;
+    Modus mode_ = MODE_OFF;
+    Modus modeOld_ = MODE_OFF;
 
   } status_;
   gbj_timer *timer_;
@@ -371,9 +363,64 @@ private:
   }
   inline void blinkPatternRestart()
   {
-    blinkHurry();
-    status_.mode_ = Modus::MODE_PATTERN;
+    blinkLed(Timing::PERIOD_HURRY);
+    setMode(Modus::MODE_PATTERN);
     status_.counter_ = status_.blinks_;
+  }
+  inline void execMode()
+  {
+    switch (status_.mode_)
+    {
+      case Modus::MODE_OFF:
+        off();
+        break;
+
+      case Modus::MODE_ON:
+        on();
+        break;
+
+      case Modus::MODE_BLINK:
+        blink();
+        break;
+
+      case Modus::MODE_HURRY:
+        blinkHurry();
+        break;
+
+      case Modus::MODE_FAST:
+        blinkFast();
+        break;
+
+      case Modus::MODE_PATTERN:
+        blinkPattern(status_.blinks_);
+        break;
+
+      default:
+        off();
+        break;
+    }
+  }
+  inline void setMode(Modus mode)
+  {
+    if (isEnabled() && isFree())
+    {
+      if (mode != status_.mode_ || status_.blinks_ != status_.blinksOld_)
+      {
+        status_.modeOld_ = status_.mode_;
+        status_.mode_ = mode;
+      }
+    }
+  }
+  inline void setBlinks(byte blinks)
+  {
+    if (isEnabled() && isFree())
+    {
+      if (blinks != status_.blinks_)
+      {
+        status_.blinksOld_ = status_.blinks_;
+        status_.blinks_ = blinks;
+      }
+    }
   }
 };
 
