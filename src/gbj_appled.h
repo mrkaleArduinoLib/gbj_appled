@@ -62,8 +62,8 @@ public:
                     bool reverse = true,
                     bool block = false)
   {
-    status_.pin_ = pinLed;
-    status_.blocked_ = block;
+    status_.pin = pinLed;
+    status_.blocked = block;
     if (reverse)
     {
       ON = LOW;
@@ -97,96 +97,87 @@ public:
   {
     if (isFree())
     {
-      pinMode(status_.pin_, OUTPUT);
+      pinMode(status_.pin, OUTPUT);
     }
-    enabled ? enable() : disable();
     on();
+    enabled ? enable() : disable();
   }
 
-  inline void block() { status_.blocked_ = true; }
-  inline void free() { status_.blocked_ = false; }
+  inline void block() { status_.blocked = true; }
+  inline void free() { status_.blocked = false; }
   inline void enable()
   {
-    status_.enabled_ = true;
+    status_.enabled = true;
     execMode();
   }
   inline void disable()
   {
-    status_.enabled_ = false;
+    status_.enabled = false;
     off();
   }
   inline void on()
   {
-    if (isEnabled())
+    setMode(Modus::MODE_ON);
+    timer_->halt();
+    status_.lit = true;
+    if (isEnabled() && isFree())
     {
-      if (isFree())
-      {
-        timer_->halt();
-        digitalWrite(status_.pin_, ON);
-      }
-      status_.mode_ = Modus::MODE_ON;
-    }
-    else
-    {
-      off();
+      digitalWrite(status_.pin, ON);
     }
   }
   inline void off()
   {
+    timer_->halt();
+    status_.lit = false;
+    if (isEnabled())
+    {
+      setMode(Modus::MODE_OFF);
+    }
     if (isFree())
     {
-      timer_->halt();
-      digitalWrite(status_.pin_, OFF);
+      digitalWrite(status_.pin, OFF);
     }
-    status_.mode_ = Modus::MODE_OFF;
   }
   inline void toggle()
   {
-    if (isEnabled())
+    status_.lit = !status_.lit;
+    if (isEnabled() && isFree())
     {
-      if (isFree())
-      {
-        digitalWrite(status_.pin_, digitalRead(status_.pin_) ^ 1);
-      }
-    }
-    else
-    {
-      off();
+      digitalWrite(status_.pin, digitalRead(status_.pin) ^ 1);
     }
   }
   inline void blink()
   {
-    blinkLed(Timing::PERIOD_NORMAL);
     setMode(Modus::MODE_BLINK);
+    blinkLed(Timing::PERIOD_NORMAL);
   }
   inline void blinkHurry()
   {
-    blinkLed(Timing::PERIOD_HURRY);
     setMode(Modus::MODE_HURRY);
+    blinkLed(Timing::PERIOD_HURRY);
   }
   inline void blinkFast()
   {
-    blinkLed(Timing::PERIOD_FAST);
     setMode(Modus::MODE_FAST);
+    blinkLed(Timing::PERIOD_FAST);
   }
   inline void blinkPattern(byte blinks = 3)
   {
+    setMode(Modus::MODE_PATTERN);
     setBlinks(constrain(blinks, 2, 255));
-    if (!isPatterned())
-    {
-      blinkPatternRestart();
-    }
+    status_.counter = status_.blinks;
+    blinkLed(Timing::PERIOD_HURRY);
   }
   inline void restoreMode()
   {
     if (isEnabled() && isFree())
     {
-      setMode(status_.modeOld_);
+      setMode(status_.modeOld);
       if (getMode() == Modus::MODE_PATTERN)
       {
-        byte blinks = status_.blinks_;
-        status_.blinks_ = status_.blinksOld_;
-        status_.blinksOld_ = blinks;
+        byte blinks = status_.blinks;
+        status_.blinks = status_.blinksOld;
+        status_.blinksOld = blinks;
       }
       execMode();
     }
@@ -205,34 +196,38 @@ public:
   */
   inline void run()
   {
-    if (isBlocked())
-    {
-      return;
-    }
     if (timer_->run())
     {
       if (isPatterned())
       {
-        if (status_.counter_)
+        if (status_.counter > 0)
         {
           if (isLit())
           {
-            status_.counter_--;
+            status_.counter--;
           }
           toggle();
         }
         else
         {
-          if (status_.halted_)
+          // Restart patterned blinking
+          if (status_.halted)
           {
-            blinkPatternRestart();
+            setMode(Modus::MODE_PATTERN);
+            status_.counter = status_.blinks;
+            blinkLed(Timing::PERIOD_HURRY);
           }
+          // Halt patterned blinking
           else
           {
-            digitalWrite(status_.pin_, OFF);
             timer_->setPeriod(Timing::PERIOD_NORMAL);
             timer_->restart();
-            status_.halted_ = true;
+            status_.halted = true;
+            status_.lit = false;
+            if (isEnabled() && isFree())
+            {
+              digitalWrite(status_.pin, OFF);
+            }
           }
         }
       }
@@ -244,47 +239,27 @@ public:
   }
 
   // Getters
-  inline bool isBlocked() { return status_.blocked_; }
+  inline bool isBlocked() { return status_.blocked; }
   inline bool isFree() { return !isBlocked(); }
-  inline bool isEnabled() { return status_.enabled_; }
+  inline bool isEnabled() { return status_.enabled; }
   inline bool isDisabled() { return !isEnabled(); }
-  inline bool isLit()
-  {
-    return isBlocked() ? false : digitalRead(status_.pin_) == ON;
-  }
-  inline bool isDim()
-  {
-    return isBlocked() ? false : digitalRead(status_.pin_) == OFF;
-  }
-  inline bool isOff() { return isDim() && !isBlinking(); }
-  inline bool isOn()
-  {
-    return isBlocked() ? false : isEnabled() && status_.mode_ == Modus::MODE_ON;
-  }
-  inline bool isBlinking()
-  {
-    return isBlocked() ? false : isEnabled() && timer_->isActive();
-  }
-  inline bool isPatterned()
-  {
-    return isBlocked() ? false
-                       : isEnabled() && status_.mode_ == Modus::MODE_PATTERN;
-  }
+  inline bool isLit() { return status_.lit; }
+  inline bool isDim() { return !isLit(); }
+  inline bool isOff() { return status_.mode == Modus::MODE_OFF; }
+  inline bool isOn() { return status_.mode == Modus::MODE_ON; }
+  inline bool isPatterned() { return status_.mode == Modus::MODE_PATTERN; }
+  inline bool isBlinking() { return timer_->isActive(); }
   inline String getStatusOn() { return "ON"; }
   inline String getStatusOff() { return "OFF"; }
   inline String getStatus()
   {
     return isEnabled() ? getStatusOn() : getStatusOff();
   }
-  inline byte getMode() { return static_cast<byte>(status_.mode_); }
+  inline byte getMode() { return static_cast<byte>(status_.mode); }
   inline String getModeText()
   {
-    switch (status_.mode_)
+    switch (status_.mode)
     {
-      case Modus::MODE_OFF:
-        return "off";
-        break;
-
       case Modus::MODE_ON:
         return "on";
         break;
@@ -306,11 +281,11 @@ public:
         break;
 
       default:
-        return "uknown";
+        return "off";
         break;
     }
   }
-  inline byte getBlinks() { return status_.blinks_; }
+  inline byte getBlinks() { return status_.blinks; }
 
   // Setters
   inline void setAbility(bool enabled) { enabled ? enable() : disable(); }
@@ -322,7 +297,7 @@ private:
     PERIOD_HURRY = 200,
     PERIOD_FAST = 100,
   };
-  enum Modus
+  enum Modus : byte
   {
     MODE_OFF,
     MODE_ON,
@@ -333,43 +308,34 @@ private:
   };
   struct Status
   {
-    byte pin_;
-    byte blinks_;
-    byte blinksOld_;
-    byte counter_;
-    bool blocked_;
-    bool enabled_;
-    bool halted_;
-    Modus mode_ = MODE_OFF;
-    Modus modeOld_ = MODE_OFF;
-
+    byte pin;
+    byte counter;
+    bool blocked;
+    bool enabled;
+    bool halted;
+    bool lit;
+    byte blinks;
+    byte blinksOld;
+    Modus mode;
+    Modus modeOld;
   } status_;
   gbj_timer *timer_;
   byte ON, OFF;
 
   inline void blinkLed(unsigned long period)
   {
-    if (isEnabled())
+    timer_->setPeriod(period);
+    timer_->restart();
+    status_.halted = false;
+    status_.lit = true;
+    if (isEnabled() && isFree())
     {
-      digitalWrite(status_.pin_, ON);
-      timer_->setPeriod(period);
-      timer_->restart();
-      status_.halted_ = false;
+      digitalWrite(status_.pin, ON);
     }
-    else
-    {
-      off();
-    }
-  }
-  inline void blinkPatternRestart()
-  {
-    blinkLed(Timing::PERIOD_HURRY);
-    setMode(Modus::MODE_PATTERN);
-    status_.counter_ = status_.blinks_;
   }
   inline void execMode()
   {
-    switch (status_.mode_)
+    switch (status_.mode)
     {
       case Modus::MODE_OFF:
         off();
@@ -392,7 +358,7 @@ private:
         break;
 
       case Modus::MODE_PATTERN:
-        blinkPattern(status_.blinks_);
+        blinkPattern(status_.blinks);
         break;
 
       default:
@@ -402,24 +368,18 @@ private:
   }
   inline void setMode(Modus mode)
   {
-    if (isEnabled() && isFree())
+    if (mode != status_.mode || status_.blinks != status_.blinksOld)
     {
-      if (mode != status_.mode_ || status_.blinks_ != status_.blinksOld_)
-      {
-        status_.modeOld_ = status_.mode_;
-        status_.mode_ = mode;
-      }
+      status_.modeOld = status_.mode;
+      status_.mode = mode;
     }
   }
   inline void setBlinks(byte blinks)
   {
-    if (isEnabled() && isFree())
+    if (blinks != status_.blinks)
     {
-      if (blinks != status_.blinks_)
-      {
-        status_.blinksOld_ = status_.blinks_;
-        status_.blinks_ = blinks;
-      }
+      status_.blinksOld = status_.blinks;
+      status_.blinks = blinks;
     }
   }
 };

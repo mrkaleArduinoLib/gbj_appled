@@ -126,7 +126,7 @@ The initialization method of the instance object, which should be called in the 
     void begin(bool enabled)
 
 #### Parameters
-* **enabled**: Flag defining the ability of an LED. If disabled, the led is ignored entirely and never lits. At running it can be changed by the setter [setAbility()](#setAbility).
+* **enabled**: Flag defining the ability of an LED. If disabled, the led is ignored entirely and never lits, but internal code is running. At running it can be changed by the setter [setAbility()](#setAbility).
   * *Valid values*: true or false
   * *Default value*: true
 
@@ -171,7 +171,9 @@ None
 
 #### Description
 The methods manipulate accessibility of the led's GPIO pin, either blocks or frees it.
+* Blocking the led is useful when a led's GPIO pin should not be allocated, e.g, when it is built-in one and is used for serial communication.
 * After changing the accessibility of a led's GPIO pin during the firmware run, its mode should be set exactly in a sketch accordingly to the new usage of it.
+* When the led is blocked, it is turned off even if the led is enabled.
 
 #### Syntax
     void block()
@@ -186,6 +188,8 @@ None
 #### See also
 [isBlocked(), isFree()](#access)
 
+[enable(), disable()](#allow)
+
 [Back to interface](#interface)
 
 
@@ -194,7 +198,8 @@ None
 ## enable(), disable()
 
 #### Description
-The methods manipulate ability of the led, either enables or disable it.
+The methods manipulate ability of the led, either enables or disables it.
+* If the led is disabled, the internal code is working the same way as in enabled mode, but the physical manipulation with led's GPIO pin is suppressed as it was at blocked led.
 
 #### Syntax
     void enable()
@@ -210,6 +215,8 @@ None
 [isEnabled(), isDisabled()](#ability)
 
 [setAbility()](#setAbility)
+
+[block(), free()](#ignore)
 
 [begin()](#begin)
 
