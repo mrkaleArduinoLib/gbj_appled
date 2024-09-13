@@ -1,6 +1,6 @@
 {
   "name": "gbj_appled",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Library manages an LED, usually built-in led for signalling purposes.",
   "keywords": "application",
   "repository": {

@@ -182,6 +182,17 @@ public:
       execMode();
     }
   }
+  inline void forceLit()
+  {
+    if (getMode() != Modus::MODE_OFF)
+    {
+      status_.lit = true;
+      if (isEnabled() && isFree())
+      {
+        digitalWrite(status_.pin, ON);
+      }
+    }
+  }
 
   /*
     Processing.

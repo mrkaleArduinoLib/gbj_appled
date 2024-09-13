@@ -59,6 +59,7 @@ Internal parameters are hard-coded in the library usually as enumerations and ha
 * [blinkHurry()](#blink)
 * [blinkFast()](#blink)
 * [blinkPattern()](#pattern)
+* [forceLit()](#forceLit)
 
 ### Getters
 * [isBlocked()](#access)
@@ -546,5 +547,25 @@ Number of blinks used at pattern blinking modus.
 
 #### See also
 [getMode(), getModeText()](#getModus)
+
+[Back to interface](#interface)
+
+
+<a id="forceLit"></a>
+
+## forceLit()
+
+#### Description
+The method forcibly turns the led on without changing its current modus, which should not be off mode and led is not blocked or disabled.
+* This is useful at the beginning of long blocking operation to ensure the led is physically turned on.
+
+#### Syntax
+    void forceLit()
+
+#### Parameters
+None
+
+#### Returns
+None
 
 [Back to interface](#interface)
