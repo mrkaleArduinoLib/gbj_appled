@@ -99,7 +99,6 @@ public:
     {
       pinMode(status_.pin, OUTPUT);
     }
-    on();
     enabled ? enable() : disable();
   }
 
