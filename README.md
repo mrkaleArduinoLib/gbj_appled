@@ -120,25 +120,18 @@ Object performing led management.
 
 #### Description
 The initialization method of the instance object, which should be called in the setup section of a sketch.
-* The method activates an led pin and sets ability of it.
-* The method does not manipulate the LED in either case, so that turning on or to make led blinking should be set separately later.
+* The method activates an led pin and enables the led.
+* The method turns the LED off in order not to lit until it is turned on in a sketch exactly.
 * The ability can be change later with corresponding method.
 
 #### Syntax
-    void begin(bool enabled)
+    void begin()
 
 #### Parameters
-* **enabled**: Flag defining the ability of an LED. If disabled, the led is ignored entirely and never lits, but internal code is running. At running it can be changed by the setter [setAbility()](#setAbility).
-  * *Valid values*: true or false
-  * *Default value*: true
+None
 
 #### Returns
 None
-
-#### See also
-[enable(), disable()](#allow)
-
-[setAbility()](#setAbility)
 
 [Back to interface](#interface)
 

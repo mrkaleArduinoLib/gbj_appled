@@ -84,22 +84,18 @@ public:
     The method should be called in the SETUP section of a sketch and sets up
     the LED.
 
-    PARAMETERS:
-    enabled - Flag whether the LED is enabled in a sketch. Disabled LED is
-      ignored entirely.
-      - Data type: boolean
-      - Default value: true
-      - Limited range: true, false
+    PARAMETERS: None
 
     RETURN: None
   */
-  inline void begin(bool enabled = true)
+  inline void begin()
   {
     if (isFree())
     {
       pinMode(status_.pin, OUTPUT);
     }
-    enabled ? enable() : disable();
+    enable();
+    off();
   }
 
   inline void block() { status_.blocked = true; }
