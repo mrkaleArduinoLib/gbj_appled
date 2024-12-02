@@ -115,10 +115,7 @@ public:
     setMode(Modus::MODE_ON);
     timer_->halt();
     status_.lit = true;
-    if (isEnabled() && isFree())
-    {
-      digitalWrite(status_.pin, ON);
-    }
+    pinOn();
   }
   inline void off()
   {
@@ -128,18 +125,12 @@ public:
     {
       setMode(Modus::MODE_OFF);
     }
-    if (isFree())
-    {
-      digitalWrite(status_.pin, OFF);
-    }
+    pinOff();
   }
   inline void toggle()
   {
     status_.lit = !status_.lit;
-    if (isEnabled() && isFree())
-    {
-      digitalWrite(status_.pin, digitalRead(status_.pin) ^ 1);
-    }
+    pinToggle();
   }
   inline void blink()
   {
@@ -182,10 +173,7 @@ public:
     if (getMode() != Modus::MODE_OFF)
     {
       status_.lit = true;
-      if (isEnabled() && isFree())
-      {
-        digitalWrite(status_.pin, ON);
-      }
+      pinOn();
     }
   }
 
@@ -230,10 +218,7 @@ public:
             timer_->restart();
             status_.halted = true;
             status_.lit = false;
-            if (isEnabled() && isFree())
-            {
-              digitalWrite(status_.pin, OFF);
-            }
+            pinOff();
           }
         }
       }
@@ -328,16 +313,35 @@ private:
   gbj_timer *timer_;
   byte ON, OFF;
 
+  inline void pinOn()
+  {
+    if (isEnabled() && isFree())
+    {
+      digitalWrite(status_.pin, ON);
+    }
+  }
+  inline void pinOff()
+  {
+    if (isFree())
+    {
+      digitalWrite(status_.pin, OFF);
+    }
+  }
+  inline void pinToggle()
+  {
+    if (isEnabled() && isFree())
+    {
+      digitalWrite(status_.pin, digitalRead(status_.pin) ^ 1);
+    }
+  }
+
   inline void blinkLed(unsigned long period)
   {
     timer_->setPeriod(period);
     timer_->restart();
     status_.halted = false;
     status_.lit = true;
-    if (isEnabled() && isFree())
-    {
-      digitalWrite(status_.pin, ON);
-    }
+    pinOn();
   }
   inline void execMode()
   {
